@@ -7,6 +7,13 @@ import { useSignUpMutation } from "@/GlobalRedux/api/api"; // Import your mutati
 
 const Reg: React.FC = () => {
   // Form state management
+  interface SignUpError {
+    data?: {
+      message?: string;
+    };
+    error?: string;
+  }
+  
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -79,24 +86,28 @@ const Reg: React.FC = () => {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!validateForm()) return;
-
+  
     try {
       setErrorMessage(null); // Reset error message before submission
       await signUp({ user: formData }).unwrap(); // Send form data to backend
       alert("User registered successfully!");
-    } catch (err: any) {
+    } catch (err) {
+      // Type assertion to SignUpError
+      const error = err as SignUpError; // Type assertion here
+  
       // Check the error response and display appropriate error message
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else if (err?.error) {
-        setErrorMessage(err.error);
+      if (error.data?.message) {
+        setErrorMessage(error.data.message);
+      } else if (error.error) {
+        setErrorMessage(error.error);
       } else {
         setErrorMessage("Failed to register user. Please try again.");
       }
     }
   };
+  
 
   return (
     <div className="bg-white pt-6 min-lg:h-[900px] shadow-xl lg:w-[800px] sm:w-[500px] md:w-[700px] mx-auto p-4">
@@ -123,7 +134,9 @@ const Reg: React.FC = () => {
                 placeholder="Your name"
                 className="hover:border-sky-700 input-bordered p-2 h-9 w-full"
               />
-              {formErrors.name && <p className="text-red-600">{formErrors.name}</p>}
+              {formErrors.name && (
+                <p className="text-red-600">{formErrors.name}</p>
+              )}
             </div>
           </div>
 
@@ -143,7 +156,9 @@ const Reg: React.FC = () => {
                 placeholder="Your email"
                 className="hover:border-sky-700 input-bordered p-2 h-9 w-full"
               />
-              {formErrors.email && <p className="text-red-600">{formErrors.email}</p>}
+              {formErrors.email && (
+                <p className="text-red-600">{formErrors.email}</p>
+              )}
             </div>
           </div>
 
@@ -163,7 +178,9 @@ const Reg: React.FC = () => {
                 placeholder="Your password"
                 className="hover:border-sky-500 input-bordered p-2 h-9 w-full"
               />
-              {formErrors.password && <p className="text-red-600">{formErrors.password}</p>}
+              {formErrors.password && (
+                <p className="text-red-600">{formErrors.password}</p>
+              )}
             </div>
           </div>
 
@@ -183,7 +200,9 @@ const Reg: React.FC = () => {
                 placeholder="Your phone number"
                 className="hover:border-sky-500 input-bordered p-2 h-9 w-full"
               />
-              {formErrors.phone && <p className="text-red-600">{formErrors.phone}</p>}
+              {formErrors.phone && (
+                <p className="text-red-600">{formErrors.phone}</p>
+              )}
             </div>
           </div>
 
@@ -203,7 +222,9 @@ const Reg: React.FC = () => {
                 placeholder="Your address"
                 className="hover:border-sky-500 input-bordered p-2 h-9 w-full"
               />
-              {formErrors.address && <p className="text-red-600">{formErrors.address}</p>}
+              {formErrors.address && (
+                <p className="text-red-600">{formErrors.address}</p>
+              )}
             </div>
           </div>
 

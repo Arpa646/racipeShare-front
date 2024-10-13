@@ -1,11 +1,14 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { getUser } from "@/services";
+import { useUser } from "@/services";
 import { useGetSingleUserQuery } from "@/GlobalRedux/api/api";
-
+import Image from 'next/image';
 export default function RentCar() {
-  const { userId } = getUser();
+
+
+
+  const { userId } = useUser();
   console.log("useremail", userId);
 
   // Fetch user data using the query
@@ -15,7 +18,7 @@ export default function RentCar() {
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error fetching user data</div>;
-
+ 
   return (
     <div className="p-4 rounded-lg">
       <div className="text-center">
@@ -34,7 +37,7 @@ export default function RentCar() {
           </p>
         </div>
         <div>
-          <img
+          <Image
             src="https://www.gstatic.com/identity/boq/accountsettingsmobile/profile_scene_visible_360x128_18500c161aac04e9279fbb234b7de818.png"
             alt=""
           />
@@ -95,7 +98,7 @@ export default function RentCar() {
           <p>Ways to verify it’s you and settings for the web</p>
         </div>
         <div>
-          <img
+          <Image
             src="https://www.gstatic.com/identity/boq/accountsettingsmobile/profile_scene_preferences_360x128_f561f5c6f5a938cfe2ab609745eb4867.png"
             alt=""
           />
@@ -114,13 +117,13 @@ export default function RentCar() {
             <p className="text-2xl">........</p>
             <Link href="/dashboard/update-pass">
               <svg
-                className="w-5"
+                className="w-5 size-6"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="size-6"
+           
               >
                 <path
                   strokeLinecap="round"

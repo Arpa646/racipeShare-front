@@ -13,48 +13,76 @@ import {
 import { PulseLoader } from "react-spinners"; // Loader package for loading state
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
-import { jwtDecode } from "jwt-decode";
-import { useSelector } from "react-redux";
+
 import { useGetAllRecipeQuery } from "@/GlobalRedux/api/api"; // Query to fetch all recipes
 
+// get the current user
+
 const RecipieFeed = () => {
-  interface CustomJwtPayload {
-    role?: string;
-    userId?: string;
-    useremail?: string;
+  interface ObjectId {
+    _id: string;
   }
 
-  const token = useSelector((state) => state.auth.token);
-  const user = token ? jwtDecode<CustomJwtPayload>(token) : null;
-  const role: string = user?.role || "Guest";
-  const email: string = user?.userId || "Guest";
+
+
+  interface Comment {
+    userId: ObjectId;
+    comment: string;
+    _id: ObjectId;
+  }
+
+  interface Rating {
+    userId: ObjectId;
+    rating: number;
+    _id: ObjectId;
+  }
+
+  interface Recipe {
+    _id: ObjectId;
+    title: string;
+    time: string; // or number, depending on how you want to handle time
+    image: string;
+    recipe: string; // Assuming it's HTML content
+    user: ObjectId;
+    isDeleted: boolean;
+    isPublished: boolean;
+    comments: Comment[];
+    createdAt: Date; // or string, depending on how you want to handle date
+    updatedAt: Date; // or string, depending on how you want to handle date
+    __v: number;
+    rating: number; // Assuming it's a number
+    ratings: Rating[];
+    dislikedBy:  string[]; // Assuming an array of ObjectId for users who disliked
+    likedBy: string[]; // Assuming an array of ObjectId for users who liked
+  }
 
   const { data, isLoading } = useGetAllRecipeQuery(undefined);
 
   const [sortOption, setSortOption] = useState("");
   const [priceRange, setPriceRange] = useState<number[]>([0, 1000]); // Range for time (in minutes)
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+  // const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  // const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
+
   const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
 
-  // Handle category filter changes
-  const handleCategoryFilter = (category: string) => {
-    setSelectedCategories((prevCategories) =>
-      prevCategories.includes(category)
-        ? prevCategories.filter((cat) => cat !== category)
-        : [...prevCategories, category]
-    );
-  };
+  // // Handle category filter changes
+  // const handleCategoryFilter = (category: string) => {
+  //   setSelectedCategories((prevCategories) =>
+  //     prevCategories.includes(category)
+  //       ? prevCategories.filter((cat) => cat !== category)
+  //       : [...prevCategories, category]
+  //   );
+  // };
 
-  // Handle ingredient filter changes
-  const handleIngredientFilter = (ingredient: string) => {
-    setSelectedIngredients((prevIngredients) =>
-      prevIngredients.includes(ingredient)
-        ? prevIngredients.filter((ing) => ing !== ingredient)
-        : [...prevIngredients, ingredient]
-    );
-  };
+  // // Handle ingredient filter changes
+  // const handleIngredientFilter = (ingredient: string) => {
+  //   setSelectedIngredients((prevIngredients) =>
+  //     prevIngredients.includes(ingredient)
+  //       ? prevIngredients.filter((ing) => ing !== ingredient)
+  //       : [...prevIngredients, ingredient]
+  //   );
+  // };
 
   // Handle rating filter changes
   const handleRatingFilter = (rating: number) => {
@@ -71,22 +99,24 @@ const RecipieFeed = () => {
   // Apply filters to recipes
   const filteredRecipes =
     RecipeData &&
-    RecipeData.filter((recipe) => {
+    RecipeData.filter((recipe: Recipe) => {
       const inTimeRange =
-        recipe.time >= priceRange[0] && recipe.time <= priceRange[1];
+        Number(recipe.time) >= priceRange[0] &&
+        Number(recipe.time) <= priceRange[1];
+
       const matchesSearch = recipe.title
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
 
-      const matchesCategory =
-        selectedCategories.length === 0 ||
-        selectedCategories.includes(recipe.category);
+      // const matchesCategory =
+      //   selectedCategories.length === 0 ||
+      //   selectedCategories.includes(recipe.category);
 
-      const matchesIngredients =
-        selectedIngredients.length === 0 ||
-        selectedIngredients.every((ing) =>
-          recipe.ingredients.includes(ing.toLowerCase())
-        );
+      // const matchesIngredients =
+      //   selectedIngredients.length === 0 ||
+      //   selectedIngredients.every((ing) =>
+      //     recipe.ingredients.includes(ing.toLowerCase())
+      //   );
 
       const matchesRating =
         selectedRatings.length === 0 || selectedRatings.includes(recipe.rating);
@@ -94,8 +124,8 @@ const RecipieFeed = () => {
       return (
         matchesSearch &&
         inTimeRange &&
-        matchesCategory &&
-        matchesIngredients &&
+        // matchesCategory &&
+        // matchesIngredients &&
         matchesRating
       );
     });
@@ -103,7 +133,7 @@ const RecipieFeed = () => {
   // Sort recipes based on user selection
   const sortedRecipes =
     filteredRecipes &&
-    filteredRecipes.slice().sort((a, b) => {
+    filteredRecipes.slice().sort((a: Recipe, b: Recipe) => {
       switch (sortOption) {
         case "time_asc":
           return Number(a.time) - Number(b.time); // Low to High by time
@@ -166,7 +196,7 @@ const RecipieFeed = () => {
           {/* Category Filter */}
           <h1 className="mt-6 mb-4">Category</h1>
           <div className="px-4">
-            <div className="flex flex-col">
+            {/* <div className="flex flex-col">
               {["Pizza", "Faluda", "Coffee", "Desserts"].map((category) => (
                 <label
                   key={category}
@@ -180,13 +210,13 @@ const RecipieFeed = () => {
                   <span>{category}</span>
                 </label>
               ))}
-            </div>
+            </div> */}
           </div>
 
           {/* Ingredients Filter */}
           <h1 className="mt-6 mb-4">Ingredients</h1>
           <div className="px-4">
-            <div className="flex flex-col">
+            {/* <div className="flex flex-col">
               {["Sugar", "Spicy", "Vegan", "Dairy"].map((ingredient) => (
                 <label
                   key={ingredient}
@@ -200,7 +230,7 @@ const RecipieFeed = () => {
                   <span>{ingredient}</span>
                 </label>
               ))}
-            </div>
+            </div> */}
           </div>
 
           {/* Rating Filter */}
@@ -247,8 +277,8 @@ const RecipieFeed = () => {
           <div className="my-5 p-3">
             {sortedRecipes && sortedRecipes.length > 0 ? (
               <div className="grid md:grid-cols-1 sm:grid-cols-2 gap-10 mx-auto my-5">
-                {sortedRecipes.map((Recipe) => (
-                  <RecipeCard key={Recipe._id} Recipe={Recipe} />
+                {sortedRecipes.map((Recipe:Recipe) => (
+                  <RecipeCard key={String(Recipe._id)} Recipe={Recipe} />
                 ))}
               </div>
             ) : (

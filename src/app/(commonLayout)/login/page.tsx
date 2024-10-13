@@ -3,7 +3,7 @@
 import GoogleLoginBtn from "../components/page/shared/GoogleLoginBtn";
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation"; // Use Next.js router instead of useNavigate
-import { setUser } from "@/GlobalRedux/features/auth/authSlice";
+import { setUser } from "@/GlobalRedux/Features/auth/authSlice";
 import { toast } from "sonner";
 import { verifyToken } from "@/utils/verify";
 import { useLogInMutation } from "@/GlobalRedux/api/api";
@@ -45,7 +45,7 @@ const LoginPage: React.FC = () => {
     setErrorMessage(""); // Reset error message
 
     try {
-      const response: any = await LogIn(formData).unwrap(); // Ensure type safety with 'unwrap'
+      const response = await LogIn(formData).unwrap(); // Ensure type safety with 'unwrap'
 
       if (response.token) {
         const user = verifyToken(response.token); // Ensure this function is properly defined

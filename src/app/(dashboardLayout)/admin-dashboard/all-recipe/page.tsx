@@ -4,8 +4,44 @@ import React from "react";
 import { useUpdateRecipeStatusMutation, useGetAllRecipeQuery } from "@/GlobalRedux/api/api"; // Adjust the path as necessary
 
 const AllRecipe = () => {
-  const { data: recipes, isLoading, error } = useGetAllRecipeQuery();
+  const { data: recipes, isLoading, error } = useGetAllRecipeQuery(undefined);
   const [updateRecipeStatus] = useUpdateRecipeStatusMutation();
+  interface ObjectId {
+    _id: string;
+  }
+
+
+
+  interface Comment {
+    userId: ObjectId;
+    comment: string;
+    _id: ObjectId;
+  }
+
+  interface Rating {
+    userId: ObjectId;
+    rating: number;
+    _id: ObjectId;
+  }
+
+  interface Recipe {
+    _id: string;
+    title: string;
+    time: string; // or number, depending on how you want to handle time
+    image: string;
+    recipe: string; // Assuming it's HTML content
+    user: ObjectId;
+    isDeleted: boolean;
+    isPublished: boolean;
+    comments: Comment[];
+    createdAt: Date; // or string, depending on how you want to handle date
+    updatedAt: Date; // or string, depending on how you want to handle date
+    __v: number;
+    rating: number; // Assuming it's a number
+    ratings: Rating[];
+    dislikedBy:  string[]; // Assuming an array of ObjectId for users who disliked
+    likedBy: string[]; // Assuming an array of ObjectId for users who liked
+  }
 
   // Handle the publish toggle action
   const handlePublishToggle = async (id: string) => {
@@ -33,8 +69,8 @@ const AllRecipe = () => {
         </tr>
       </thead>
       <tbody>
-        {recipes?.data?.map((recipe) => (
-          <tr key={recipe._id.$oid}>
+        {recipes?.data?.map((recipe:Recipe) => (
+          <tr key={String(recipe._id)}>
             <td className="border px-4 py-2">{recipe.title}</td>
             <td className="border px-4 py-2">{recipe.time}</td>
             <td className="border px-4 py-2">{recipe.rating}</td>

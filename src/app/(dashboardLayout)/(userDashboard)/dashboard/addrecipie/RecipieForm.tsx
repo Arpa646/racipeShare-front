@@ -1,92 +1,75 @@
 "use client";
-import React, { useEffect, useState,FormEvent } from "react";
 
-
-
+import React, { useState, FormEvent } from "react";
 import dynamic from "next/dynamic";
-import "react-quill/dist/quill.snow.css"; 
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });// Import styles for React Quill
-import {
-  
-  useGetSingleRecipeQuery,
-  useUpdateRecipeMutation,
-} from "@/GlobalRedux/api/api"; // Make sure to import updateRecipe
+import "react-quill/dist/quill.snow.css"; // Import styles for React Quill
+import { useAddRecipeMutation } from "@/GlobalRedux/api/api";
+import { useUser } from "@/services";
 
+// Dynamically import React Quill to avoid SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
-interface Params {
-  updateId: string; // Assuming updateId is a string, you can change this if necessary
-}
-
-
-const RecipeCreationPage = ({ params }: { params: Params })=> {
+const RecipieForm = () => {
+  // States for recipe details
   const [recipeTitle, setRecipeTitle] = useState("");
   const [recipeContent, setRecipeContent] = useState("");
   const [recipeTime, setRecipeTime] = useState("");
   const [recipeImage, setRecipeImage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
- 
 
-  const id  = params.updateId; // Extract the recipe ID from the URL params
+  // Hook to trigger the mutation for adding a recipe
+  const [addRecipe, { isLoading: isAddingRecipe }] = useAddRecipeMutation();
 
-  const { data: currentRecipe, isLoading: isFetching } =
-    useGetSingleRecipeQuery(id); // Fetch current recipe
-  const [updateRecipe, { isLoading: isUpdating }] = useUpdateRecipeMutation();
+  // Get current user ID from the service
+  const { userId } = useUser();
 
-
-
-  console.log(currentRecipe)
-  // Effect to set current recipe data to state
-  useEffect(() => {
-    if (currentRecipe) {
-      setRecipeTitle(currentRecipe?.data.title);
-      setRecipeContent(currentRecipe ?.data.recipe);
-      setRecipeTime(currentRecipe?.data.time);
-      setRecipeImage(currentRecipe?.data.image);
-    }
-  }, [currentRecipe]);
-
-  // Handle form submission
+  // Handle form submission for adding a new recipe
   const handleRecipeSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
+    e.preventDefault(); // Prevent default form submission
+    setIsLoading(true); // Show loading state
 
+    // Construct the recipe data object
     const recipeData = {
       title: recipeTitle,
       recipe: recipeContent,
       time: recipeTime,
       image: recipeImage,
-      // Include the user ID if necessary
+      user: userId, // Include the user ID
     };
 
     try {
-      // Send recipeData to the server using updateRecipe
-      const response = await updateRecipe({ id, ...recipeData }).unwrap();
-      console.log("Recipe updated successfully:", response);
+      // Call the mutation to add the recipe
+      const response = await addRecipe(recipeData).unwrap();
+      console.log("Recipe added successfully:", response);
+      alert("Recipe submitted successfully!");
 
-      // Save the submitted recipe to display it on the page
- 
-
-      // Reset form after submission
-   
-      alert("Recipe updated successfully!");
+      // Reset form fields after submission
+      setRecipeTitle("");
+      setRecipeContent("");
+      setRecipeTime("");
+      setRecipeImage("");
     } catch (error) {
-      console.error("Error updating recipe:", error);
-      alert("Failed to update the recipe.");
+      console.error("Error submitting recipe:", error);
+
+      // Handle API error with a message
+      const apiError = error as { data?: { message?: string } };
+      alert(
+        "Failed to submit the recipe. " +
+          (apiError.data?.message || "Please try again later.")
+      );
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading state
     }
   };
-
-  if (isFetching) return <div>Loading...</div>; // Show loading state while fetching recipe
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-5">
       <div className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-lg">
         <h1 className="text-3xl font-semibold mb-6 text-center">
-          Update Recipe
+          Create a Recipe
         </h1>
         <form onSubmit={handleRecipeSubmit}>
-          {/* Recipe Title */}
+          {/* Recipe Title Input */}
           <div className="mb-4">
             <label className="block text-lg font-medium mb-2">
               Recipe Title
@@ -101,7 +84,7 @@ const RecipeCreationPage = ({ params }: { params: Params })=> {
             />
           </div>
 
-          {/* Recipe Time */}
+          {/* Time Required Input */}
           <div className="mb-4">
             <label className="block text-lg font-medium mb-2">
               Time Required
@@ -116,7 +99,7 @@ const RecipeCreationPage = ({ params }: { params: Params })=> {
             />
           </div>
 
-          {/* Recipe Image */}
+          {/* Image URL Input */}
           <div className="mb-4">
             <label className="block text-lg font-medium mb-2">Image URL</label>
             <input
@@ -128,7 +111,7 @@ const RecipeCreationPage = ({ params }: { params: Params })=> {
             />
           </div>
 
-          {/* Recipe Content - Rich Text Editor */}
+          {/* Recipe Content (Quill Editor) */}
           <div className="mb-4">
             <label className="block text-lg font-medium mb-2">
               Recipe Content
@@ -146,15 +129,14 @@ const RecipeCreationPage = ({ params }: { params: Params })=> {
           <button
             type="submit"
             className="bg-blue-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300"
-            disabled={isLoading || isUpdating}
+            disabled={isLoading || isAddingRecipe}
           >
-            {isLoading || isUpdating ? "Submitting..." : "Update Recipe"}
+            {isLoading || isAddingRecipe ? "Submitting..." : "Submit Recipe"}
           </button>
         </form>
-
       </div>
     </div>
   );
 };
 
-export default RecipeCreationPage;
+export default RecipieForm;

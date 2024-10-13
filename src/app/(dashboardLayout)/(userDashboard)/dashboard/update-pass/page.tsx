@@ -1,28 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { useSelector } from "react-redux";
+
 import { useChangePassMutation } from "@/GlobalRedux/api/api";
-import { jwtDecode } from "jwt-decode";
+
+import {useUser} from "@/services"
 import Link from "next/link"; // Import the Next.js Link component
 const UpdatePassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  interface CustomJwtPayload {
-    role?: string;
-    userId?: string;
-    useremail?: string;
-  }
-  // Fetching token from Redux store
-  const token = useSelector((state) => state.auth.token);
-  const user = token ? jwtDecode<CustomJwtPayload>(token) : null;
-  //const role: string = user?.role || "Guest";
-  const id: string = user?.useremail as string;
+
+
+  
+  const {userId} = useUser()
+  const id=userId;
+
+
+
+
   console.log(id);
+
+
+
+
+
   // Using the mutation hook
   const [changePassword, { isLoading }] = useChangePassMutation();
 
-  const handlePasswordChange = async (e) => {
+  const handlePasswordChange = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (newPassword !== confirmPassword) {
@@ -32,7 +37,7 @@ const UpdatePassword = () => {
 
     try {
       // Assuming you already have `userId` from the Redux store or passed in props
-      const response = await changePassword({ id, newPassword }).unwrap();
+   await changePassword({ id, newPassword }).unwrap();
 
       alert("Password updated successfully!");
     } catch (error) {

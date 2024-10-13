@@ -1,32 +1,23 @@
 "use client";
 
 import React from "react";
-import { getUser } from "@/services";
-import { jwtDecode } from "jwt-decode"; // Correct import for jwtDecode
-import { useSelector } from "react-redux";
+import { useUser } from "@/services";
+
 
 import { useMakePremiumMutation } from "@/GlobalRedux/api/api";
-interface CustomJwtPayload {
-  role?: string;
-  userId?: string;
-  useremail?: string;
-}
 
+ 
 const RecipeSubscription = () => {
-  const token = useSelector((state: any) => state.auth.token);
-  console.log(token);
 
+const {userId}=useUser()
   // Decode the token to extract user info
-  const user = token ? jwtDecode<CustomJwtPayload>(token) : null;
 
-  console.log(user);
 
-  // Extract role and userId (or email) from the token
-  const role: string = user?.role || "Guest";
-  const userId: string = user?.useremail || "Guest";
-  console.log(userId);
+
+
+
   // Mutation hook
-  const [getPremium, { isLoading, isError }] = useMakePremiumMutation();
+  const [getPremium, { isLoading }] = useMakePremiumMutation();
 
   // Handle the purchase premium functionality
   const handlePurchasePremium = async () => {

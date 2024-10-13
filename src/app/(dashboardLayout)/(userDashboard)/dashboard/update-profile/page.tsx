@@ -5,12 +5,17 @@ import {
   useGetSingleUserQuery,
   useUpdateUserProfileMutation,
 } from "@/GlobalRedux/api/api";
-import { getUser } from "@/services";
+import { useUser } from "@/services";
 
 const UserProfileUpdate: React.FC = () => {
   // Get the userId from the service
-  const { userId } = getUser();
-
+  const { userId } = useUser();
+  interface ErrorResponse {
+    data?: {
+      message?: string;
+    };
+    error?: string;
+  }
   // Fetch the user's profile data
   const {
     data: userProfile1,
@@ -98,24 +103,27 @@ const userProfile=userProfile1?.data;
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!validateForm()) return;
-
+  
     try {
       setErrorMessage(null); // Reset error message before submission
       await updateUser({ userId, ...formData }).unwrap(); // Send updated form data to backend
       alert("User profile updated successfully!");
-    } catch (err: any) {
+    } catch (err) {
+      const error = err as ErrorResponse; // Type assertion to use ErrorResponse interface
+  
       // Check the error response and display appropriate error message
-      if (err?.data?.message) {
-        setErrorMessage(err.data.message);
-      } else if (err?.error) {
-        setErrorMessage(err.error);
+      if (error?.data?.message) {
+        setErrorMessage(error.data.message);
+      } else if (error?.error) {
+        setErrorMessage(error.error);
       } else {
         setErrorMessage("Failed to update profile. Please try again.");
       }
     }
   };
+  
 
   return (
     <div className="bg-white pt-6 min-lg:h-[900px] shadow-xl lg:w-[800px] sm:w-[500px] md:w-[700px] mx-auto p-4">

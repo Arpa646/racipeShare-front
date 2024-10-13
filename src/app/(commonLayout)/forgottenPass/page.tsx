@@ -2,18 +2,14 @@
 
 import GoogleLoginBtn from "../components/page/shared/GoogleLoginBtn";
 import React, { useState, ChangeEvent, FormEvent } from "react";
-import { useRouter } from "next/navigation"; // Use Next.js router instead of useNavigate
+// Use Next.js router instead of useNavigate
 
-import { toast } from "sonner";
 
 import { useForgottenPassMutation } from "@/GlobalRedux/api/api";
 import Link from "next/link"; // Next.js Link for navigation
 
 
-type ApiError = {
-  status?: number;
-  message?: string;
-};
+
 
 interface LoginForm {
   email: string;
@@ -21,7 +17,7 @@ interface LoginForm {
 }
 
 const LoginPage: React.FC = () => {
-  const router = useRouter(); // Next.js router
+
   const [forgotPass] = useForgottenPassMutation();
 
   
@@ -30,7 +26,7 @@ const LoginPage: React.FC = () => {
     password: "user",
   });
 
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [, setErrorMessage] = useState<string>("");
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -45,7 +41,7 @@ const LoginPage: React.FC = () => {
     setErrorMessage(""); // Reset error message
 
 
-      const response: any = await forgotPass(formData).unwrap(); // Ensure type safety with 'unwrap'
+      await forgotPass(formData).unwrap(); // Ensure type safety with 'unwrap'
 
   }
 

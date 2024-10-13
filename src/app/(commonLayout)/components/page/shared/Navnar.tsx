@@ -9,7 +9,7 @@ import { Cog } from "lucide-react";
 import Link from "next/link";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 // import { ThemeSwitcher } from "./ThemeSwitcher";
-import { getUser } from "@/services";
+import { useUser } from "@/services";
 export default function NavBar() {
   const routeMap: Record<string, string> = {
     user: "/dashboard",
@@ -17,7 +17,7 @@ export default function NavBar() {
     driver: "/dashboard/driver",
   };
 
-  const user = getUser();
+  const user = useUser();
 
   return (
     <Navbar maxWidth="2xl">
@@ -52,7 +52,8 @@ export default function NavBar() {
             <button
               className=" h-12 px-10 bg-[#6CA12B]"
               color="primary"
-              variant="flat"
+          
+              
             >
               Logout
             </button>

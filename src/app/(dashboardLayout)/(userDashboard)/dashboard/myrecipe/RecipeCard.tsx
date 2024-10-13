@@ -1,12 +1,91 @@
 "use client";
+import Image from "next/image";
 
 import Link from "next/link";
 import { AiOutlineEye, AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { useDeleteRecipeMutation } from "@/GlobalRedux/api/api"; // Adjust the import path based on your setup
 
-export const RecipeCard = ({ Recipe }) => {
+
+
+
+
+
+
+
+interface ObjectId {
+  _id: string;
+}
+
+
+
+interface Comment {
+  userId: ObjectId;
+  comment: string;
+  _id: ObjectId;
+}
+
+interface Rating {
+  userId: ObjectId;
+  rating: number;
+  _id: ObjectId;
+}
+
+interface Recipe {
+  _id: ObjectId;
+  title: string;
+  time: string; // or number, depending on how you want to handle time
+  image: string;
+  recipe: string; // Assuming it's HTML content
+  user: ObjectId;
+  isDeleted: boolean;
+  isPublished: boolean;
+  comments: Comment[];
+  createdAt: Date; // or string, depending on how you want to handle date
+  updatedAt: Date; // or string, depending on how you want to handle date
+  __v: number;
+  rating: number; // Assuming it's a number
+  ratings: Rating[];
+  dislikedBy:  string[]; // Assuming an array of ObjectId for users who disliked
+  likedBy: string[];// Assuming an array of ObjectId for users who liked
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+interface RecipeCardProps {
+  Recipe: Recipe; // Use the interface here
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const RecipeCard : React.FC<RecipeCardProps> = ({ Recipe }) => {
   console.log("Rendering RecipeCard", Recipe._id);
 
+
+
+
+  
   const [deleteRecipe] = useDeleteRecipeMutation();
 
   // Limit recipe description to 100 characters
@@ -27,44 +106,49 @@ export const RecipeCard = ({ Recipe }) => {
     }
   };
 
+  const getRecipePreview = (html: string, maxLength: number): string => {
+    let currentLength = 0; // Tracks the current length of the preview
+    let result = ""; // Stores the resulting truncated HTML
 
-  const getRecipePreview = (html, maxLength) => {
-    let currentLength = 0;
-    let result = "";
-
-    // Create a temporary DOM element to parse the HTML string
+    // Create a temporary div element to hold the HTML string
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = html;
 
-    // Iterate through child nodes to build the result
-    const traverseNodes = (node) => {
-      if (currentLength >= maxLength) return;
+    // Recursive function to traverse through the HTML nodes
+    const traverseNodes = (node: Node): void => {
+      if (currentLength >= maxLength) return; // Stop traversing if the max length is reached
 
+      // If the node is a text node, append its content
       if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.nodeValue;
-        const remainingLength = maxLength - currentLength;
+        const textContent = node.textContent || ""; // Ensure textContent is not null
+        const remainingLength = maxLength - currentLength; // Calculate the remaining allowed length
 
-        if (text.length > remainingLength) {
-          result += text.slice(0, remainingLength) + "..."; // Append ellipsis if text is cut off
+        if (textContent.length > remainingLength) {
+          result += textContent.slice(0, remainingLength) + "..."; // Truncate text and append "..."
           currentLength = maxLength;
         } else {
-          result += text;
-          currentLength += text.length;
+          result += textContent; // Append the full text if it's within the limit
+          currentLength += textContent.length;
         }
       } else if (node.nodeType === Node.ELEMENT_NODE) {
-        // Preserve HTML structure for nested elements
-        result += `<${node.nodeName.toLowerCase()}>`;
-        Array.from(node.childNodes).forEach(traverseNodes);
-        result += `</${node.nodeName.toLowerCase()}>`;
+        result += `<${(node as Element).nodeName.toLowerCase()}>`; // Append opening HTML tag
+        Array.from(node.childNodes).forEach(traverseNodes); // Recursively traverse through child nodes
+        result += `</${(node as Element).nodeName.toLowerCase()}>`; // Append closing HTML tag
       }
     };
 
+    // Start traversing the nodes of the tempDiv
     Array.from(tempDiv.childNodes).forEach(traverseNodes);
-    return result;
+    return result; // Return the resulting truncated HTML
   };
 
-
   const recipePreview = getRecipePreview(Recipe.recipe, 100);
+
+
+
+
+
+
 
 
 
@@ -72,10 +156,13 @@ export const RecipeCard = ({ Recipe }) => {
     <div className="Recipe-card border flex flex-col md:flex-row justify-center items-center border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
       {/* Image */}
       <div className="Recipe-image w-full md:w-1/4">
-        <img
+        <Image
           src={Recipe?.image}
           alt={Recipe.title}
-          className="w-full p-5 h-48 md:h-48 object-cover rounded-l-lg md:rounded-none"
+          width={400} // Use a representative width based on your design
+          height={300} // Use a representative height based on your design
+          layout="responsive" // This makes the image responsive
+          className="p-5 h-48 object-cover rounded-l-lg md:rounded-none"
         />
       </div>
 
@@ -91,10 +178,7 @@ export const RecipeCard = ({ Recipe }) => {
           dangerouslySetInnerHTML={{ __html: recipePreview }} // Render limited HTML content
         ></div>
         {/* Meta information */}
-        <div className="mb-2">
-          <span className="font-bold text-gray-700">Location:</span>{" "}
-          {Recipe.location}
-        </div>
+     
       </div>
 
       {/* Actions */}

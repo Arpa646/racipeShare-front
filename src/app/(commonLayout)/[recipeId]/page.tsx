@@ -9,17 +9,18 @@ import {
   useCancelCommentMutation,
 } from "@/GlobalRedux/api/api"; // Adjust to your API slice
 import { jwtDecode } from "jwt-decode";
-import { RootState } from "@/redux/store";
+import { RootState } from "@/GlobalRedux/store";
 import { useSelector } from "react-redux";
 import { FaStar } from "react-icons/fa"; // Star icons for rating
 import { useState, useEffect } from "react";
 import { AiOutlineUser } from "react-icons/ai"; // User icon
-
+import Image from 'next/image';
 interface CustomJwtPayload {
   role?: string;
   userId?: string;
   useremail?: string;
 }
+
 
 export default function RecipeDetails({ params }: any) {
   const [rating, setRating] = useState(0);
@@ -30,7 +31,7 @@ export default function RecipeDetails({ params }: any) {
   const token = useSelector((state: RootState) => state.auth.token);
   const user = token ? jwtDecode<CustomJwtPayload>(token) : null;
   const userId: string = user?.useremail || "Guest"; // Extract user ID from token
-  const role: string = user?.role || "Guest";
+
   const id = params.recipeId;
 
   const { data: recipeData, isLoading: isRecipeLoading } =
@@ -119,7 +120,7 @@ export default function RecipeDetails({ params }: any) {
             <h1 className="text-1xl text-center text-gray font-semibold mb-4">
               {recipe?.createdAt}
             </h1>
-            <img
+            <Image
               src={recipe?.image}
               alt="Recipe"
               className="w-full mb-4 h-[500px] transform hover:scale-105 transition-transform duration-300"
@@ -134,7 +135,7 @@ export default function RecipeDetails({ params }: any) {
             <div className="flex flex-col items-center p-4 border rounded-lg shadow-md">
               <div className="w-24 h-24 flex justify-center items-center rounded-full border-2 border-gray-300 mb-4">
                 {userdata?.profilePicture ? (
-                  <img
+                  <Image
                     src={userdata.profilePicture}
                     alt={userdata.name}
                     className="w-full h-full rounded-full object-cover"
@@ -187,43 +188,46 @@ export default function RecipeDetails({ params }: any) {
 
           {/* Comment Section */}
           <div className="mt-6">
-            <h2 className="text-2xl font-semibold">Comments</h2>
-            {recipe?.comments && recipe.comments.length > 0 ? (
-              recipe.comments.map((commentObj: any) => (
-                <div
-                  key={commentObj._id}
-                  className="flex space-x-4 border-b border-gray-200 pb-6 mb-6"
-                >
-                  <img
-                    src="https://media.istockphoto.com/id/1217967989/photo/portrait-of-an-young-asian-female-malay-smiling.webp?a=1&b=1&s=612x612&w=0&k=20&c=LjhDWrtInpW7Gufcl7hx4tAhsi2AlI-Lrg76LwEaLws="
-                    alt="User avatar"
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <div>
-                        <p className="font-bold">
-                          {commentObj?.userId?.name || "Anonymous"}
-                        </p>
-                      </div>
-                      {userId === commentObj?.userId?._id && (
-                        <button
-                          className="text-red-500"
-                          onClick={() => handleDeleteComment(commentObj._id)}
-                          disabled={isCommentDeleting}
-                        >
-                          {isCommentDeleting ? "Deleting..." : "Delete"}
-                        </button>
-                      )}
-                    </div>
-                    <p className="mt-2 text-gray-700">{commentObj.comment}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="text-gray-600">No comments yet.</p>
+  <h2 className="text-2xl font-semibold">Comments</h2>
+  {recipe?.comments && recipe.comments.length > 0 ? (
+    recipe.comments.map((commentObj: { _id: string, userId: { name?: string, _id?: string }, comment: string }) => (
+      <div
+        key={commentObj._id}
+        className="flex space-x-4 border-b border-gray-200 pb-6 mb-6"
+      >
+        <Image
+          src="https://media.istockphoto.com/id/1217967989/photo/portrait-of-an-young-asian-female-malay-smiling.webp?a=1&b=1&s=612x612&w=0&k=20&c=LjhDWrtInpW7Gufcl7hx4tAhsi2AlI-Lrg76LwEaLws="
+          alt="User avatar"
+          className="w-12 h-12 rounded-full object-cover"
+          width={48} // Set width explicitly
+          height={48} // Set height explicitly
+        />
+        <div className="flex-1">
+          <div className="flex justify-between">
+            <div>
+              <p className="font-bold">
+                {commentObj?.userId?.name || "Anonymous"}
+              </p>
+            </div>
+            {userId === commentObj?.userId?._id && (
+              <button
+                className="text-red-500"
+                onClick={() => handleDeleteComment(commentObj._id)}
+                disabled={isCommentDeleting}
+              >
+                {isCommentDeleting ? "Deleting..." : "Delete"}
+              </button>
             )}
           </div>
+          <p className="mt-2 text-gray-700">{commentObj.comment}</p>
+        </div>
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-600">No comments yet.</p>
+  )}
+</div>
+
 
           {/* Post a Comment */}
           <div className="mt-10">

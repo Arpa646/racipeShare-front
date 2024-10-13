@@ -1,7 +1,12 @@
-
-
-import {jwtDecode} from "jwt-decode";
 import { useSelector } from "react-redux";
+import {jwtDecode} from "jwt-decode";
+
+// Define the shape of your Redux state
+interface RootState {
+  auth: {
+    token: string;
+  };
+}
 
 // Interface for the token payload
 interface CustomJwtPayload {
@@ -10,10 +15,10 @@ interface CustomJwtPayload {
   useremail?: string;
 }
 
-// Function to return user details from token
-export const getUser = () => {
-  // Get the token from Redux state
-  const token = useSelector((state: any) => state.auth.token);
+// Create a custom hook to get the user details from the token
+export const useUser = () => {
+  // Get the token from Redux state with the correct typing
+  const token = useSelector((state: RootState) => state.auth.token);
 
   // Decode the token to extract user details, if the token exists
   const user: CustomJwtPayload | null = token ? jwtDecode<CustomJwtPayload>(token) : null;

@@ -8,7 +8,7 @@ const AllUser: React.FC = () => {
   const [updateUserStatus] = useUpdateUserStatusMutation();
   const [deleteUser] = useDeleteUserMutation(); // Import delete mutation
 
-  const users = (data as any)?.data;
+  const users = (data )?.data;
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error fetching users</p>;

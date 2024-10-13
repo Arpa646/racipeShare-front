@@ -1,74 +1,52 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { cookies } from "next/headers";
-import { NextRequest, NextResponse } from "next/server";
-import { decode } from "./helpers/jwtHelpers";
+// import { cookies } from "next/headers";
+// import { NextRequest } from "next/server";
 
-const authRoutes = ["/login", "/register"];
-import {jwtDecode} from "jwt-decode";
-import { useSelector } from "react-redux";
+
+// const authRoutes = ["/login", "/register"];
+
 
 // Interface for the token payload
-interface CustomJwtPayload {
-  role?: string;
-  userId?: string;
-  useremail?: string;
-}
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
 
-  console.log(pathname, "pathname");
-
-  //pathname , acessToken
-
-  //pathname = admin-dashboard -> accessToken = admin -> admin-dashboard &&
-  //pathname = admin-dashboard -> accessToken = user -> home page
-
-   const accessToken = cookies().get("token")?.value;
-
-console.log(accessToken)
- // const user: CustomJwtPayload | null = token ? jwtDecode<CustomJwtPayload>(token) : null;
-
-
-
- // const tokenFromPass = localStorage.getItem('token');
- if (!accessToken) {
-//Protecting hybrid routes
-    if (authRoutes.includes(pathname)) {
-      return NextResponse.next();
-    } else {
-      //   return NextResponse.redirect(new URL("/login", request.url));
-      return NextResponse.redirect(
-        new URL(
-          pathname ? `/login?redirect=${pathname}` : "/login",
-          request.url
-        )
-      );
-    }
-  }
-
+export async function middleware() {
+  //   const { pathname } = request.nextUrl;
+  //   console.log(pathname, "pathname");
+  //   //pathname , acessToken
+  //   //pathname = admin-dashboard -> accessToken = admin -> admin-dashboard &&
+  //   //pathname = admin-dashboard -> accessToken = user -> home page
+  //    const accessToken = cookies().get("token")?.value;
+  // console.log(accessToken)
+  //  // const user: CustomJwtPayload | null = token ? jwtDecode<CustomJwtPayload>(token) : null;
+  //  // const tokenFromPass = localStorage.getItem('token');
+  //  if (!accessToken) {
+  // //Protecting hybrid routes
+  //     if (authRoutes.includes(pathname)) {
+  //       return NextResponse.next();
+  //     } else {
+  //       //   return NextResponse.redirect(new URL("/login", request.url));
+  //       return NextResponse.redirect(
+  //         new URL(
+  //           pathname ? `/login?redirect=${pathname}` : "/login",
+  //           request.url
+  //         )
+  //       );
+  //     }
+  //   }
   // //Role based authorization
-
   // let decodedToken = null;
-
   // decodedToken = decode(accessToken) as any;
-
   // console.log(decodedToken, "decodedToken");
-
   // const role = decodedToken?.role;
-
   // console.log(role, "role");
   // console.log(pathname, "pathname");
-
   // // /admin-dashboard - ok
   // // /admin-dashboard/car-management - ok
   // if (role === "admin" && pathname.match(/^\/admin-dashboard/)) {
   //   return NextResponse.next();
   // }
-
   // if (role === "driver" && pathname.match(/^\/driver-dashboard/)) {
   //   return NextResponse.next();
   // }
-
   // // /dashboard , /dashboard/my-requested-rides , /profile
   // if (role === "user" && pathname.match(/^\/dashboard/)) {
   //   return NextResponse.next();
@@ -76,9 +54,7 @@ console.log(accessToken)
   // if (role === "user" && pathname === "/profile") {
   //   return NextResponse.next();
   // }
-
   // return NextResponse.redirect(new URL("/", request.url));
-
   //decodedToken.role
 }
 

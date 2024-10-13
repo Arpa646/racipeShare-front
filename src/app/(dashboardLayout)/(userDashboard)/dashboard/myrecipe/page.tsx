@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { RecipeCard } from "./RecipeCard"; // Component for displaying each recipe
 import Pagination from "./Pagination"; // Pagination component
 import {
@@ -12,51 +12,86 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/app/ui/select";
-import { Button } from "@/app/ui/button";
+
 import { useGetRecipeByEmailQuery } from "@/GlobalRedux/api/api"; // Query to fetch all recipes
 import { PulseLoader } from "react-spinners"; // Loader package for loading state
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
-import {jwtDecode} from "jwt-decode";
-import { RootState } from "@/redux/store";
-import { useSelector } from "react-redux";
+
+import { useUser } from "@/services";
 const MyRecipie = () => {
-
-    interface CustomJwtPayload {
-        role?: string;
-        userId?: string;
-        useremail?: string;
-      }
-    const token = useSelector((state) => state.auth.token);
-    const user = token ? jwtDecode(token) : null;
-
-    console.log(user);
-    const role: string = user?.role || "Guest";
-    const email: string = user?.userId || "Guest";
-
-
-
-    const { data, isLoading } = useGetRecipeByEmailQuery(email); 
+  const { email } = useUser();
 
 
 
 
 
+  interface ObjectId {
+    _id: string;
+  }
+
+
+
+  interface Comment {
+    userId: ObjectId;
+    comment: string;
+    _id: ObjectId;
+  }
+
+  interface Rating {
+    userId: ObjectId;
+    rating: number;
+    _id: ObjectId;
+  }
+
+  interface Recipe {
+    _id: ObjectId;
+    title: string;
+    time: string; // or number, depending on how you want to handle time
+    image: string;
+    recipe: string; // Assuming it's HTML content
+    user: ObjectId;
+    isDeleted: boolean;
+    isPublished: boolean;
+    comments: Comment[];
+    createdAt: Date; // or string, depending on how you want to handle date
+    updatedAt: Date; // or string, depending on how you want to handle date
+    __v: number;
+    rating: number; // Assuming it's a number
+    ratings: Rating[];
+    dislikedBy:  string[]; // Assuming an array of ObjectId for users who disliked
+    likedBy: string[]; // Assuming an array of ObjectId for users who liked
+  }
+
+
+
+
+
+
+
+  
+  const { data, isLoading } = useGetRecipeByEmailQuery(email);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [sortOption, setSortOption] = useState("");
   const [priceRange, setPriceRange] = useState<number[]>([0, 1000]); // Range for time (in minutes)
   const postsPerPage = 6;
-// Fetch all recipe data
+  // Fetch all recipe data
   const RecipeData = data?.data;
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredFacilities =
     RecipeData &&
-    RecipeData.filter((recipe) => {
+    RecipeData.filter((recipe: Recipe) => {
       const inTimeRange =
-        recipe.time >= priceRange[0] && recipe.time <= priceRange[1];
+        Number(recipe.time) >= priceRange[0] &&
+        Number(recipe.time) <= priceRange[1];
+
+
+
+
+
       const matchesSearch = recipe.title
         .toLowerCase()
         .includes(searchQuery.toLowerCase());
@@ -68,10 +103,20 @@ const MyRecipie = () => {
       );
     });
 
+
+
+
+
+
+
+
+
+
+
   // Sort recipes by time (ascending or descending)
   const sortedFacilities =
     filteredFacilities &&
-    filteredFacilities.slice().sort((a, b) => {
+    filteredFacilities.slice().sort((a: Recipe, b: Recipe) => {
       const timeA = Number(a.time); // Ensure 'time' is a number
       const timeB = Number(b.time); // Ensure 'time' is a number
       switch (sortOption) {
@@ -160,8 +205,8 @@ const MyRecipie = () => {
             <div className="facility-category-section">
               {currentPosts && currentPosts.length > 0 ? (
                 <div className="grid md:grid-cols-1 sm:grid-cols-2 gap-10 mx-auto my-5">
-                  {currentPosts.map((recipe) => (
-                    <RecipeCard key={recipe._id} Recipe={recipe} />
+                  {currentPosts.map((Recipe: Recipe) => (
+                    <RecipeCard key={String(Recipe._id)} Recipe={Recipe} />
                   ))}
                 </div>
               ) : (

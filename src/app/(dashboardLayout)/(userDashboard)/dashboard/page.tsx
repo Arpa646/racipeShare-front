@@ -1,29 +1,16 @@
 "use client";
 import React from "react";
 import { useMakePremiumMutation } from "@/GlobalRedux/api/api"; // Import your mutation hook from RTK Query
-import {jwtDecode} from "jwt-decode"; // Correct import for jwtDecode
-import { useSelector } from "react-redux";
 
+import {useUser} from "@/services"
 const DashboardPage = () => {
-  interface CustomJwtPayload {
-    role?: string;
-    userId?: string;
-    useremail?: string;
-  }
-
+ 
+const {userId}=useUser()
   // Get the token from Redux state
-  const token = useSelector((state: any) => state.auth.token);
-  console.log(token);
 
-  // Decode the token to extract user info
-  const user = token ? jwtDecode<CustomJwtPayload>(token) : null;
 
-  console.log(user);
 
-  // Extract role and userId (or email) from the token
-  const role: string = user?.role || "Guest";
-  const userId: string = user?.useremail || "Guest";
-  console.log(userId);
+
   // Mutation hook
   const [getPremium, { isLoading, isError }] = useMakePremiumMutation();
 
