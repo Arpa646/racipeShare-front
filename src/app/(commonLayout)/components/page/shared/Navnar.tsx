@@ -5,41 +5,33 @@ import {
   NavbarContent,
   NavbarItem,
 } from "@nextui-org/react";
-import { Cog } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import Link from "next/link";
 import { ThemeSwitcher } from "./ThemeSwitcher";
-// import { ThemeSwitcher } from "./ThemeSwitcher";
 import { useUser } from "@/services";
-export default function NavBar() {
-  const routeMap: Record<string, string> = {
-    user: "/dashboard",
-    admin: "/dashboard/admin",
-    driver: "/dashboard/driver",
-  };
 
+export default function NavBar() {
   const user = useUser();
 
   return (
-    <Navbar maxWidth="2xl">
+    <Navbar maxWidth="full" className="bg-white border-b border-amber-200">
       <NavbarBrand>
-        <Link className="flex" href="/">
-          <Cog />
-          <p className="font-bold text-inherit px-4">APOLLO GEARS</p>
+        <Link className="flex items-center gap-2" href="/">
+          <BookOpen className="h-6 w-6 text-amber-600" />
+          <p className="font-bold text-xl text-amber-900">Bookworm</p>
         </Link>
       </NavbarBrand>
 
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
-        <NavbarItem isActive>
-          <Link color="foreground" href="/cars" aria-current="page">
-            Recipie
+        <NavbarItem>
+          <Link href="/login" className="text-amber-700 hover:text-amber-900 transition-colors">
+            Sign In
           </Link>
         </NavbarItem>
         <NavbarItem>
-          <Link href="#">Customers</Link>
-        </NavbarItem>
-        <NavbarItem>
-          {/* {user && <Link href={routeMap[user?.role]}>Dashboard</Link>} */}
-          <Link href={routeMap.user}>Dashboard</Link>
+          <Link href="/register" className="text-amber-700 hover:text-amber-900 transition-colors">
+            Sign Up
+          </Link>
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
@@ -49,18 +41,21 @@ export default function NavBar() {
 
         {user ? (
           <NavbarItem>
-            <button
-              className=" h-12 px-10 bg-[#6CA12B]"
-              color="primary"
-          
-              
+            <Link
+              href="/dashboard"
+              className="px-6 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-700 hover:to-orange-700 transition-all"
             >
-              Logout
-            </button>
+              Dashboard
+            </Link>
           </NavbarItem>
         ) : (
-          <NavbarItem className=" h-12 px-10 bg-[#6CA12B]">
-            <Link href="/login">Login</Link>
+          <NavbarItem>
+            <Link
+              href="/login"
+              className="px-6 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg hover:from-amber-700 hover:to-orange-700 transition-all"
+            >
+              Login
+            </Link>
           </NavbarItem>
         )}
       </NavbarContent>

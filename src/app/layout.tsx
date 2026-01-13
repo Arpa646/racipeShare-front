@@ -4,8 +4,8 @@ import Providers from "./lib/Providers";
 import { Providerss } from "@/GlobalRedux/provider";
 
 export const metadata: Metadata = {
-  title: "Apollo Gears",
-  description: "Next Level Riding Sharing Service",
+  title: "Bookworm - Your Reading Companion",
+  description: "Discover, read, and track your favorite books",
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <title>Apollo Gears</title>
+        <title>Bookworm</title>
         {/* Add the favicon link here */}
         <link
           rel="icon"
@@ -27,7 +27,7 @@ export default function RootLayout({
       <body className={`antialiased`}>
         <Providerss>
           <Providers>
-            <div className="mx-auto container">{children}</div>
+            {children}
           </Providers>
         </Providerss>
       </body>

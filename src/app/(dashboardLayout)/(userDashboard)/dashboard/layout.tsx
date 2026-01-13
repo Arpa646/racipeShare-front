@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { UserLayout } from "./layout/userLayout";
 
 export const metadata: Metadata = {
-  title: "Dashboard - Apollo Gears",
-  description: "Next Level Riding Sharing Service",
+  title: "Dashboard - Bookworm",
+  description: "Your personal reading library and recommendations",
 };
 
 export default function UserDashboardLayout({

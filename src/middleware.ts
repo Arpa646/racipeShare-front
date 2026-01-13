@@ -1,72 +1,87 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import { cookies } from "next/headers";
-// import { NextRequest } from "next/server";
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { decode } from "@/helpers/jwtHelpers";
 
+const authRoutes = ["/login", "/register"];
 
-// const authRoutes = ["/login", "/register"];
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const accessToken = cookies().get("token")?.value;
 
+  // Allow access to login/register pages
+  if (authRoutes.includes(pathname)) {
+    // If user is already logged in, redirect based on role
+    if (accessToken) {
+      try {
+        const decodedToken = decode(accessToken) as any;
+        const role = decodedToken?.role;
+        if (role === "admin") {
+          return NextResponse.redirect(new URL("/admin-dashboard", request.url));
+        } else if (role === "user") {
+          return NextResponse.redirect(new URL("/dashboard/my-library", request.url));
+        }
+      } catch (error) {
+        // Invalid token, allow access to auth pages
+        return NextResponse.next();
+      }
+    }
+    return NextResponse.next();
+  }
 
-// Interface for the token payload
+  // Protect all other routes - require authentication
+  if (!accessToken) {
+    return NextResponse.redirect(
+      new URL(
+        pathname ? `/login?redirect=${pathname}` : "/login",
+        request.url
+      )
+    );
+  }
 
-export async function middleware() {
-  //   const { pathname } = request.nextUrl;
-  //   console.log(pathname, "pathname");
-  //   //pathname , acessToken
-  //   //pathname = admin-dashboard -> accessToken = admin -> admin-dashboard &&
-  //   //pathname = admin-dashboard -> accessToken = user -> home page
-  //    const accessToken = cookies().get("token")?.value;
-  // console.log(accessToken)
-  //  // const user: CustomJwtPayload | null = token ? jwtDecode<CustomJwtPayload>(token) : null;
-  //  // const tokenFromPass = localStorage.getItem('token');
-  //  if (!accessToken) {
-  // //Protecting hybrid routes
-  //     if (authRoutes.includes(pathname)) {
-  //       return NextResponse.next();
-  //     } else {
-  //       //   return NextResponse.redirect(new URL("/login", request.url));
-  //       return NextResponse.redirect(
-  //         new URL(
-  //           pathname ? `/login?redirect=${pathname}` : "/login",
-  //           request.url
-  //         )
-  //       );
-  //     }
-  //   }
-  // //Role based authorization
-  // let decodedToken = null;
-  // decodedToken = decode(accessToken) as any;
-  // console.log(decodedToken, "decodedToken");
-  // const role = decodedToken?.role;
-  // console.log(role, "role");
-  // console.log(pathname, "pathname");
-  // // /admin-dashboard - ok
-  // // /admin-dashboard/car-management - ok
-  // if (role === "admin" && pathname.match(/^\/admin-dashboard/)) {
-  //   return NextResponse.next();
-  // }
-  // if (role === "driver" && pathname.match(/^\/driver-dashboard/)) {
-  //   return NextResponse.next();
-  // }
-  // // /dashboard , /dashboard/my-requested-rides , /profile
-  // if (role === "user" && pathname.match(/^\/dashboard/)) {
-  //   return NextResponse.next();
-  // }
-  // if (role === "user" && pathname === "/profile") {
-  //   return NextResponse.next();
-  // }
-  // return NextResponse.redirect(new URL("/", request.url));
-  //decodedToken.role
+  // Role-based authorization
+  try {
+    const decodedToken = decode(accessToken) as any;
+    const role = decodedToken?.role;
+
+    // Admin routes
+    if (pathname.match(/^\/admin-dashboard/)) {
+      if (role === "admin") {
+        return NextResponse.next();
+      } else {
+        return NextResponse.redirect(new URL("/dashboard/my-library", request.url));
+      }
+    }
+
+    // User dashboard routes
+    if (pathname.match(/^\/dashboard/)) {
+      if (role === "user" || role === "admin") {
+        return NextResponse.next();
+      } else {
+        return NextResponse.redirect(new URL("/login", request.url));
+      }
+    }
+
+    // Default route - redirect based on role
+    if (pathname === "/") {
+      if (role === "admin") {
+        return NextResponse.redirect(new URL("/admin-dashboard", request.url));
+      } else {
+        return NextResponse.redirect(new URL("/dashboard/my-library", request.url));
+      }
+    }
+
+    // Allow access to other protected routes
+    return NextResponse.next();
+  } catch (error) {
+    // Invalid token, redirect to login
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 }
-
-//!accessToken -> /login -> jete dao
 
 export const config = {
   matcher: [
-    "/login",
-    "/register",
-    "/dashboard/:page*",
-    "/admin-dashboard/:page*",
-    "/driver-dashboard/:page*",
+    "/((?!api|_next/static|_next/image|favicon.ico|assets).*)",
   ],
 };
 

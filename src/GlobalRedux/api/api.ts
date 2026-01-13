@@ -135,6 +135,14 @@ export const baseApi = createApi({
       }),
     }),
 
+    changeUserRole: builder.mutation({
+      query: ({ id, role }) => ({
+        url: `/auth/change-role/${id}`,
+        method: "PUT",
+        body: { role },
+      }),
+    }),
+
     deleteFacility: builder.mutation({
       query: (id) => ({
         url: `facility/${id}`,
@@ -303,6 +311,200 @@ export const baseApi = createApi({
         method: "DELETE",
       }),
     }),
+
+    // Books Endpoints
+    getAllBooks: builder.query({
+      query: () => ({
+        url: "/books",
+        method: "GET",
+      }),
+    }),
+
+    getSingleBook: builder.query({
+      query: (id) => ({
+        url: `/books/${id}`,
+        method: "GET",
+      }),
+    }),
+
+    createBook: builder.mutation({
+      query: (bookData) => ({
+        url: "/books",
+        method: "POST",
+        body: bookData,
+      }),
+    }),
+
+    updateBook: builder.mutation({
+      query: ({ id, ...bookData }) => ({
+        url: `/books/${id}`,
+        method: "PUT",
+        body: bookData,
+      }),
+    }),
+
+    deleteBook: builder.mutation({
+      query: (id) => ({
+        url: `/books/${id}`,
+        method: "DELETE",
+      }),
+    }),
+
+    // Genres Endpoints
+    getAllGenres: builder.query({
+      query: () => ({
+        url: "/genres",
+        method: "GET",
+      }),
+    }),
+
+    getSingleGenre: builder.query({
+      query: (id) => ({
+        url: `/genres/${id}`,
+        method: "GET",
+      }),
+    }),
+
+    createGenre: builder.mutation({
+      query: (genreData) => ({
+        url: "/genres",
+        method: "POST",
+        body: genreData,
+      }),
+    }),
+
+    updateGenre: builder.mutation({
+      query: ({ id, ...genreData }) => ({
+        url: `/genres/${id}`,
+        method: "PUT",
+        body: genreData,
+      }),
+    }),
+
+    deleteGenre: builder.mutation({
+      query: (id) => ({
+        url: `/genres/${id}`,
+        method: "DELETE",
+      }),
+    }),
+
+    // Reviews Endpoints
+    createReview: builder.mutation({
+      query: (reviewData) => {
+        console.log("Creating review with data:", reviewData);
+        return {
+          url: "/reviews",
+          method: "POST",
+          body: reviewData,
+        };
+      },
+    }),
+
+    getBookReviews: builder.query({
+      query: (bookId) => ({
+        url: `/reviews/book/${bookId}`,
+        method: "GET",
+      }),
+    }),
+
+    getPendingReviews: builder.query({
+      query: () => ({
+        url: "/reviews",
+        method: "GET",
+      }),
+    }),
+
+    approveReview: builder.mutation({
+      query: (id) => ({
+        url: `/reviews/${id}/approve`,
+        method: "PATCH",
+      }),
+    }),
+
+    deleteReview: builder.mutation({
+      query: (id) => ({
+        url: `/reviews/${id}`,
+        method: "DELETE",
+      }),
+    }),
+
+    // Library shelf Endpoints
+    addToShelf: builder.mutation({
+      query: (shelfData) => ({
+        url: "/shelf",
+        method: "POST",
+        body: shelfData,
+      }),
+    }),
+
+    getShelves: builder.query({
+      query: () => ({
+        url: "/shelf",
+        method: "GET",
+      }),
+    }),
+
+    getMyLibrary: builder.query({
+      query: () => ({
+        url: `/shelf/user`,
+        method: "GET",
+      }),
+    }),
+
+    updateReadingProgress: builder.mutation({
+      query: ({ shelfId, ...progressData }) => ({
+        url: `/shelf/${shelfId}`,
+        method: "PUT",
+        body: progressData,
+      }),
+    }),
+
+    removeFromShelf: builder.mutation({
+      query: (shelfId) => ({
+        url: `/shelf/${shelfId}`,
+        method: "DELETE",
+      }),
+    }),
+
+    // Recommendations
+    getRecommendations: builder.query({
+      query: () => ({
+        url: "/recommendations",
+        method: "GET",
+      }),
+    }),
+
+    // Search and Filters
+    searchBooks: builder.query({
+      query: (params) => ({
+        url: "/books/search",
+        method: "GET",
+        params,
+      }),
+    }),
+
+    // Reading Challenge
+    getReadingChallenge: builder.query({
+      query: () => ({
+        url: "/reading-challenge",
+        method: "GET",
+      }),
+    }),
+
+    updateReadingChallenge: builder.mutation({
+      query: (challengeData) => ({
+        url: "/reading-challenge",
+        method: "PUT",
+        body: challengeData,
+      }),
+    }),
+
+    getReadingStats: builder.query({
+      query: () => ({
+        url: "/reading-stats",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -334,8 +536,48 @@ export const {
   useUpdateRecipeStatusMutation,
 
   useDeleteUserMutation,
+  useChangeUserRoleMutation,
 
   useGetUserQuery,
   useLogInMutation,
   useSignUpMutation,
+
+  // Books
+  useGetAllBooksQuery,
+  useGetSingleBookQuery,
+  useCreateBookMutation,
+  useUpdateBookMutation,
+  useDeleteBookMutation,
+
+  // Genres
+  useGetAllGenresQuery,
+  useGetSingleGenreQuery,
+  useCreateGenreMutation,
+  useUpdateGenreMutation,
+  useDeleteGenreMutation,
+
+  // Reviews
+  useCreateReviewMutation,
+  useGetBookReviewsQuery,
+  useGetPendingReviewsQuery,
+  useApproveReviewMutation,
+  useDeleteReviewMutation,
+
+  // Library
+  useAddToShelfMutation,
+  useGetShelvesQuery,
+  useGetMyLibraryQuery,
+  useUpdateReadingProgressMutation,
+  useRemoveFromShelfMutation,
+
+  // Recommendations
+  useGetRecommendationsQuery,
+
+  // Search
+  useSearchBooksQuery,
+
+  // Reading Challenge
+  useGetReadingChallengeQuery,
+  useUpdateReadingChallengeMutation,
+  useGetReadingStatsQuery,
 } = baseApi;
